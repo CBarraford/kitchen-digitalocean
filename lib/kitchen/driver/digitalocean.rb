@@ -47,6 +47,10 @@ module Kitchen
         driver.default_name
       end
 
+      default_config :prefix do |driver|
+        driver.default_prefix
+      end
+
       default_config :digitalocean_client_id do |driver|
         ENV['DIGITALOCEAN_CLIENT_ID']
       end
@@ -103,10 +107,15 @@ module Kitchen
         data['images'].fetch(instance.platform.name) { '473123' }
       end
 
+      def default_prefix
+        config[:prefix] = config[:prefix] == '' ? nil : config[:prefix]
+      end
+
       def default_name
         # Generate what should be a unique server name
         rand_str = Array.new(8) { rand(36).to_s(36) }.join
-        "#{instance.name}-#{Etc.getlogin}-#{Socket.gethostname}-#{rand_str}"
+        prefix = config[:prefix].nil? ? '' : "#{config[:prefix]}-"
+        "#{prefix}#{instance.name}-#{Etc.getlogin}-#{Socket.gethostname}-#{rand_str}"
       end
 
       private
